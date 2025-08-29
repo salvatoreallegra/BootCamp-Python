@@ -1,6 +1,22 @@
 [
   {
     "title": "Learn logging",
+    "done": true
+  },
+  {
+    "title": "X",
+    "done": false
+  },
+  {
+    "title": "X",
+    "done": false
+  },
+  {
+    "title": "X",
+    "done": false
+  },
+  {
+    "title": "X",
     "done": false
   }
 ]
