@@ -5,7 +5,7 @@
 from pathlib import Path
 import json
 import pytest
-from bootcamp_python.day05.storage import load_tasks, save_tasks, StorageError
+from bootcamp_python.storage.json_storage import load_tasks, save_tasks, StorageError
 
 def test_load_returns_empty_if_missing(tmp_path: Path):
     path = tmp_path / "tasks.json"

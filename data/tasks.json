@@ -18,5 +18,9 @@
   {
     "title": "X",
     "done": false
+  },
+  {
+    "title": "Package Demo",
+    "done": false
   }
 ]

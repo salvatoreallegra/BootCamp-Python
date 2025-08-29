@@ -2,14 +2,14 @@
 # tasks_cli.py
 # A tiny CLI to add/list/complete tasks with logging & errors.
 # -------------------------------------------------------
-from __future__ import annotations
 import argparse
 import logging
 from pathlib import Path
-from typing import Dict, Any, List
+from bootcamp_python.models.task import Task
+from bootcamp_python.storage.json_storage import load_tasks, save_tasks
 
 # ✅ Import the module, not the symbols (easier to monkeypatch)
-from bootcamp_python.day05 import storage
+from bootcamp_python.storage import json_storage
 
 # Configure logging once, with level INFO
 logging.basicConfig(
@@ -23,41 +23,41 @@ DATA_PATH = Path("data/tasks.json")
 def cmd_add(args: argparse.Namespace) -> int:
     """Add a new task."""
     try:
-        tasks = storage.load_tasks(DATA_PATH)
+        tasks = json_storage.load_tasks(DATA_PATH)
         tasks.append({"title": args.title, "done": False})
-        storage.save_tasks(DATA_PATH, tasks)
+        json_storage.save_tasks(DATA_PATH, tasks)
         log.info("Added task: %s", args.title)
         return 0
-    except storage.StorageError as e:
+    except json_storage.StorageError as e:
         log.error("Storage error: %s", e)
         return 1
 
 def cmd_list(args: argparse.Namespace) -> int:
     """List tasks."""
     try:
-        tasks = storage.load_tasks(DATA_PATH)
+        tasks = json_storage.load_tasks(DATA_PATH)
         for idx, t in enumerate(tasks, start=1):
             status = "✔" if t.get("done") else " "
             print(f"{idx}. [{status}] {t.get('title')}")
         log.info("Listed %d tasks", len(tasks))
         return 0
-    except storage.StorageError as e:
+    except json_storage.StorageError as e:
         log.error("Storage error: %s", e)
         return 1
 
 def cmd_done(args: argparse.Namespace) -> int:
     """Mark a task as done by 1-based index."""
     try:
-        tasks = storage.load_tasks(DATA_PATH)
+        tasks = json_storage.load_tasks(DATA_PATH)
         idx = args.index - 1
         if idx < 0 or idx >= len(tasks):
             log.error("Invalid index: %s", args.index)
             return 2
         tasks[idx]["done"] = True
-        storage.save_tasks(DATA_PATH, tasks)
+        json_storage.save_tasks(DATA_PATH, tasks)
         log.info("Completed task #%d: %s", args.index, tasks[idx].get("title"))
         return 0
-    except storage.StorageError as e:
+    except json_storage.StorageError as e:
         log.error("Storage error: %s", e)
         return 1
 

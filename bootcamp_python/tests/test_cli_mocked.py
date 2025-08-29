@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 # Import the CLI module after patching path constant if needed
-import tasks_cli
+import bootcamp_python.cli.tasks_cli as tasks_cli
 
 class FakeStore:
     def __init__(self):
@@ -23,10 +23,10 @@ def fstore():
 @pytest.fixture(autouse=True)
 def patch_storage(monkeypatch, fstore):
     # Patch storage functions the CLI imports
-    from bootcamp_python.day05 import storage
+    from bootcamp_python.storage import json_storage
 
-    monkeypatch.setattr(storage, "load_tasks", lambda p: fstore.load(p))
-    monkeypatch.setattr(storage, "save_tasks", lambda p, t: fstore.save(p, t))
+    monkeypatch.setattr(json_storage, "load_tasks", lambda p: fstore.load(p))
+    monkeypatch.setattr(json_storage, "save_tasks", lambda p, t: fstore.save(p, t))
 
 def test_cli_add(monkeypatch, capsys):
     # Simulate: tasks_cli.py add --title "X"
