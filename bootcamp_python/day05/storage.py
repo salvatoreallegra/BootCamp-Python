@@ -10,16 +10,16 @@ from typing import List, Dict, Any
 class StorageError(Exception):
     """Raised for storage-related errors (IO/JSON/etc.)."""
 
-def load_tasks(path: Path) -> List[Dict[str, Any]]:
+def load_tasks(path: Path) -> list[dict]:
     try:
         if not path.exists():
-            return []  # no file yet = empty list
+            return []
         with path.open("r", encoding="utf-8") as f:
             return json.load(f)
     except Exception as exc:
         raise StorageError(f"Failed to load tasks from {path}") from exc
 
-def save_tasks(path: Path, tasks: List[Dict[str, Any]]) -> None:
+def save_tasks(path: Path, tasks: list[dict]) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:

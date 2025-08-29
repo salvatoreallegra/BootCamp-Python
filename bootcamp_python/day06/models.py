@@ -1,10 +1,7 @@
-# -------------------------------------------------------
-# models.py
-# Dataclass-based Task with type hints and a few helpers.
-# -------------------------------------------------------
+# bootcamp_python/day06/models.py
 from __future__ import annotations
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 @dataclass
@@ -17,16 +14,23 @@ class Task:
 
     @property
     def is_overdue(self) -> bool:
-        return self.due_utc is not None and datetime.now(timezone.utc) > self.due_utc and not self.is_done
+        """
+        True only if there's a due date, the task is not done, and the due time
+        is in the past (with a tiny grace so 'due now' isn't flagged).
+        """
+        if self.due_utc is None or self.is_done:
+            return False
+        now = datetime.now(timezone.utc)
+        return (now - self.due_utc) > timedelta(seconds=1)
 
     @classmethod
     def from_dict(cls, data: dict) -> "Task":
-        # Simple parse; real code would parse ISO strings to datetime
+        # Minimal parse; if you store ISO strings for datetimes, parse them here.
         return cls(
             title=data["title"],
             description=data.get("description"),
             is_done=bool(data.get("is_done", False)),
-            due_utc=data.get("due_utc"),  # keep None/simple for now
+            due_utc=data.get("due_utc"),  # parse if needed
         )
 
     def to_dict(self) -> dict:
