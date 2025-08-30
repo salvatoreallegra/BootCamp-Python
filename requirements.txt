@@ -2,5 +2,4 @@ pytest==8.3.2
 pip install mypy ruff
 ruff check .
 mypy bootcamp_python
-
-
+python-dotenv
