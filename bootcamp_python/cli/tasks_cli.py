@@ -7,6 +7,16 @@ import logging
 from pathlib import Path
 from bootcamp_python.models.task import Task
 from bootcamp_python.storage.json_storage import load_tasks, save_tasks
+from bootcamp_python import config
+
+def cmd_add(args):
+    # just log which key is loaded (demo)
+    log.info("Using API_KEY=%s", config.API_KEY)
+    tasks = load_tasks(DATA_PATH)
+    t = Task(args.title)
+    tasks.append(t.to_dict())
+    save_tasks(DATA_PATH, tasks)
+    return 0
 
 # ✅ Import the module, not the symbols (easier to monkeypatch)
 from bootcamp_python.storage import json_storage
