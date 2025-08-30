@@ -11,23 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
 
-      # If your tests need env vars, set them here or via GitHub Secrets
       - name: Run tests
-        env:
-          # Example: API_KEY will be "test-ci-key" unless overridden by Repository Secrets
-          API_KEY: ${{ secrets.API_KEY || 'test-ci-key' }}
         run: |
-          pytest -q
+          PYTHONPATH=. python -m pytest
