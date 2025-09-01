@@ -34,25 +34,26 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
-    needs: test # don't push if tests fail
+    needs: test
     steps:
       - uses: actions/checkout@v4
 
-      # Login to Azure using the service principal
+      # Login to Azure using the service principal (needed for consistency, optional if using admin creds)
       - name: Azure login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          allow-no-subscriptions: true # ✅ quick fix for "No subscriptions found"
+          allow-no-subscriptions: true
 
-      # Login to ACR (so docker push can authenticate)
+      # ACR login using admin credentials
       - name: ACR login
         uses: azure/docker-login@v2
         with:
           login-server: ${{ env.ACR_LOGIN_SERVER }}
-          # With azure/login + docker-login, no username/password needed
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
 
-      # Generate helpful tags (latest + branch + sha)
+      # Generate helpful tags
       - name: Set image tags
         id: vars
         run: |
