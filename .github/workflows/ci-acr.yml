@@ -8,8 +8,10 @@ on:
   workflow_dispatch:
 
 env:
+  # Only ACR_NAME is pulled from secrets
   ACR_NAME: ${{ secrets.ACR_NAME }}
-  ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER != '' && secrets.ACR_LOGIN_SERVER || format('{0}.azurecr.io', secrets.ACR_NAME) }}
+  # Always derive the login server from ACR_NAME so it can't be empty
+  ACR_LOGIN_SERVER: ${{ format('{0}.azurecr.io', secrets.ACR_NAME) }}
   IMAGE_NAME: bootcamp-python
 
 jobs:
@@ -33,19 +35,27 @@ jobs:
           PYTHONPATH=. python -m pytest
 
   build-and-push:
+    # Don't attempt ACR push on pull_request events (secrets not available)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
 
-      # Login to Azure using the service principal (needed for consistency, optional if using admin creds)
+      - name: Validate ACR env
+        run: |
+          echo "ACR_NAME=${{ env.ACR_NAME }}"
+          echo "ACR_LOGIN_SERVER=${{ env.ACR_LOGIN_SERVER }}"
+          test -n "${{ env.ACR_NAME }}" || (echo "ACR_NAME is empty" && exit 1)
+          test -n "${{ env.ACR_LOGIN_SERVER }}" || (echo "ACR_LOGIN_SERVER is empty" && exit 1)
+
       - name: Azure login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           allow-no-subscriptions: true
 
-      # ACR login using admin credentials
+      # ACR login using admin credentials (ACR_USERNAME / ACR_PASSWORD secrets)
       - name: ACR login
         uses: azure/docker-login@v2
         with:
@@ -53,7 +63,6 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      # Generate helpful tags
       - name: Set image tags
         id: vars
         run: |
